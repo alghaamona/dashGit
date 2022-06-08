@@ -1,4 +1,4 @@
-from http import server
+# ---------------------------------------------------------Importing ------------------------------------------------
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import dash
@@ -6,11 +6,16 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 import pandas as pd
-# pip install pyorbital
 from pyorbital.orbital import Orbital
 
+# ---------------------------------------------------------Reading file ------------------------------------------------
+
 data = pd.read_csv("dataset.csv", encoding='unicode_escape')
+
+# -----------------------------------------------------Data Processing-----------------------------------
 # generate invoice month for each line purchase equal to the first day of the month when the purchase was made
+
+
 data['InvoiceMonth'] = pd.to_datetime(data['InvoiceDate']).to_numpy().astype('datetime64[M]')
 
 # first invoice month for every customer
@@ -50,11 +55,14 @@ retention_table = grouped.divide(size, axis=0)
 
 # compute the percentage
 retention_table.round(3) * 100
+
+# -------------------------------- Graph --------------------------------------------------------
 a = px.imshow(
     retention_table, text_auto=".2%", color_continuous_scale="blues", range_color=[0, 1]
 ).update_xaxes(side="top", dtick=1).update_yaxes(dtick="M1")
 a
 
+# --------------------------------------------- App ----------------------------------------------
 satellite = Orbital('TERRA')
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -94,8 +102,8 @@ app.layout = html.Div(
 
 # Multiple components can update everytime interval gets fired.
 @app.callback(
-    Output(component_id='heatmap', component_property='figure'),
-    Input(component_id='dropDown', component_property='value'))
+       Output(component_id='heatmap', component_property='figure'),
+       Input(component_id='dropDown', component_property='value'))
 def update_graph_live(n):
     print(n)
     dff = df.copy()
@@ -103,7 +111,7 @@ def update_graph_live(n):
     dff = dff[dff["Country"] == n]
     # group by cohort month and index and find number of unique customers for each grouping
     grouped = dff.groupby(['CohortMonth', 'CohortIndex', ])['CustomerID'].apply(pd.Series.nunique) \
-        .reset_index()
+          .reset_index()
     # pivot the data with cohort month as rows and Cohort Index as columns
     grouped = grouped.pivot(index='CohortMonth', columns='CohortIndex', values='CustomerID')
     # divide each column by value of the first(cohort size) to find retention rate
@@ -116,16 +124,6 @@ def update_graph_live(n):
         retention_table, text_auto=".2%", color_continuous_scale="blues", range_color=[0, 1]
     ).update_xaxes(side="top", dtick=1).update_yaxes(dtick="M1")
 
-    fig_map.update_layout(
-        font_color="black",
-        title_font_color="black",
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        legend_title='  Degrees',
-        legend_title_font_color="black",
-        yaxis_title=None,
-        xaxis_title=None
-    )
     fig = go.Figure(fig_map)
 
     return fig
