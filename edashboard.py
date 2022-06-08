@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import pandas as pd
 from pyorbital.orbital import Orbital
 
-# ---------------------------------------------------------Reading file ------------------------------------------------
+# ------------------------------------------------------Reading file ------------------------------------------------
 
 data = pd.read_csv("dataset.csv", encoding='unicode_escape')
 
